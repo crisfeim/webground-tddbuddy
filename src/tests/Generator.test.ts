@@ -4,8 +4,8 @@ import type {
   Runner,
   ProcessOutput,
   Concatenator,
-} from "./Generator.js";
-import { Generator } from "./Generator.js";
+} from "../lib/Generator.js";
+import { Generator } from "../lib/Generator.js";
 
 describe("generateCode", () => {
   it("delivers error on client error", async () => {
