@@ -1,29 +1,11 @@
 import { describe, it, expect } from "vitest";
-
-type Client = (specs: string) => Promise<string>;
-
-type ProcessOutput = {
-  stdout: string;
-  stderr: string;
-  exitCode: number;
-};
-type Runner = (code: string) => ProcessOutput;
-type Concatenator = (code: string, specs: string) => string;
-
-class Generator {
-  constructor(
-    private client: Client,
-    private runner: Runner,
-    private concatenator: Concatenator = (code, specs) => code + " " + specs,
-  ) {}
-
-  async generateCode(specs: string): Promise<ProcessOutput> {
-    const code = await this.client(specs);
-    const concatenatedCode = this.concatenator(code, specs);
-    const processOutput = this.runner(concatenatedCode);
-    return processOutput;
-  }
-}
+import type {
+  Client,
+  Runner,
+  ProcessOutput,
+  Concatenator,
+} from "./Generator.js";
+import { Generator } from "./Generator.js";
 
 describe("generateCode", () => {
   it("delivers error on client error", async () => {
@@ -62,12 +44,13 @@ describe("generateCode", () => {
     // spy
     let capturedCode: string | undefined;
 
-    const runnerSpy: Runner = (code) => {
+    const runnerSpy: Runner = (code: string) => {
       capturedCode = code;
       return { stdout: "", stderr: "", exitCode: 0 };
     };
 
-    const concatenator: Concatenator = (code, specs) => "concatenated";
+    const concatenator: Concatenator = (code: string, specs: string) =>
+      "concatenated";
 
     const sut = makeSUT({ runner: runnerSpy, concatenator: concatenator });
     await sut.generateCode(anySpecs());
@@ -92,7 +75,7 @@ describe("generateCode", () => {
 function makeSUT({
   client = clientDummy,
   runner = runnerDummy,
-  concatenator = (code, specs) => code + " " + specs,
+  concatenator = (code: string, specs: string) => code + " " + specs,
 }: {
   client?: Client;
   runner?: Runner;
