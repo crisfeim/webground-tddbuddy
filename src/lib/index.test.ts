@@ -1,26 +1,43 @@
 import { describe, it, expect } from "vitest";
 
+type Client = (specs: string) => Promise<string>;
+type Runner = (code: string) => string;
+
 class Generator {
-  constructor(private client: Client) {}
+  constructor(
+    private client: Client,
+    private runner: Runner,
+  ) {}
 
   async generateCode(specs: string): Promise<string> {
-    return this.client(specs);
+    const code = await this.client(specs);
+    const processOutput = this.runner(code);
+    return processOutput;
   }
 }
-
-type Client = (specs: string) => Promise<string>;
 
 describe("generateCode", () => {
   it("delivers error on client error", async () => {
     const clientStub: Client = (_: string) => Promise.reject(anyError());
-    const sut = new Generator(clientStub);
+    const runnerDummy: Runner = (_: string) => anyCode();
+    const sut = new Generator(clientStub, runnerDummy);
     await expect(sut.generateCode(anySpecs())).rejects.toEqual(anyError());
   });
 
   it("delivers code on client success", async () => {
     const clientStub: Client = (specs: string) => Promise.resolve(anyCode());
-    const sut = new Generator(clientStub);
+    const runnerDummy: Runner = (_: string) => anyCode();
+    const sut = new Generator(clientStub, runnerDummy);
     await expect(sut.generateCode(anySpecs())).resolves.toEqual(anyCode());
+  });
+
+  it("delivers error on runner error", async () => {
+    const clientDummy: Client = (_: string) => Promise.resolve(anyCode());
+    const runnerStub: Runner = (_: string) => {
+      throw anyError();
+    };
+    const sut = new Generator(clientDummy, runnerStub);
+    await expect(sut.generateCode(anySpecs())).rejects.toEqual(anyError());
   });
 });
 
