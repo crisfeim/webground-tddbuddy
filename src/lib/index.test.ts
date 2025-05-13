@@ -19,27 +19,46 @@ class Generator {
 describe("generateCode", () => {
   it("delivers error on client error", async () => {
     const clientStub: Client = (_: string) => Promise.reject(anyError());
-    const runnerDummy: Runner = (_: string) => anyCode();
-    const sut = new Generator(clientStub, runnerDummy);
+    const sut = makeSUT({ client: clientStub });
     await expect(sut.generateCode(anySpecs())).rejects.toEqual(anyError());
   });
 
   it("delivers code on client success", async () => {
     const clientStub: Client = (specs: string) => Promise.resolve(anyCode());
-    const runnerDummy: Runner = (_: string) => anyCode();
-    const sut = new Generator(clientStub, runnerDummy);
+    const sut = makeSUT({ client: clientStub });
     await expect(sut.generateCode(anySpecs())).resolves.toEqual(anyCode());
   });
 
   it("delivers error on runner error", async () => {
-    const clientDummy: Client = (_: string) => Promise.resolve(anyCode());
     const runnerStub: Runner = (_: string) => {
       throw anyError();
     };
-    const sut = new Generator(clientDummy, runnerStub);
+
+    const sut = makeSUT({ runner: runnerStub });
     await expect(sut.generateCode(anySpecs())).rejects.toEqual(anyError());
   });
 });
+
+function makeSUT({
+  client = clientDummy,
+  runner = runnerDummy,
+}: {
+  client?: Client;
+  runner?: Runner;
+} = {}): Generator {
+  return new Generator(client, runner);
+}
+
+const clientDummy: Client = (_: string) => Promise.resolve(anyCode());
+const runnerDummy: Runner = (_: string) => anyCode();
+
+function anyClient(specs: string): Promise<string> {
+  return Promise.reject(anyError());
+}
+
+function anyRunner(code: string): string {
+  throw anyError();
+}
 
 function anyError(): Error {
   return new Error("any Error");
