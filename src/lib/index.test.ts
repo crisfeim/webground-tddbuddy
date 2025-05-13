@@ -1,7 +1,13 @@
 import { describe, it, expect } from "vitest";
 
 type Client = (specs: string) => Promise<string>;
-type Runner = (code: string) => string;
+
+type ProcessOutput = {
+  stdout: string;
+  stderr: string;
+  exitCode: number;
+};
+type Runner = (code: string) => ProcessOutput;
 
 class Generator {
   constructor(
@@ -9,7 +15,7 @@ class Generator {
     private runner: Runner,
   ) {}
 
-  async generateCode(specs: string): Promise<string> {
+  async generateCode(specs: string): Promise<ProcessOutput> {
     const code = await this.client(specs);
     const processOutput = this.runner(code);
     return processOutput;
@@ -23,19 +29,30 @@ describe("generateCode", () => {
     await expect(sut.generateCode(anySpecs())).rejects.toEqual(anyError());
   });
 
-  it("delivers code on client success", async () => {
+  it("delivers output on client success", async () => {
     const clientStub: Client = (specs: string) => Promise.resolve(anyCode());
     const sut = makeSUT({ client: clientStub });
-    await expect(sut.generateCode(anySpecs())).resolves.toEqual(anyCode());
+    await expect(sut.generateCode(anySpecs())).resolves.toEqual(anyOutput());
   });
 
-  it("delivers error on runner error", async () => {
+  it("delivers output on code running", async () => {
     const runnerStub: Runner = (_: string) => {
-      throw anyError();
+      return {
+        stdout: "",
+        stderr: "",
+        exitCode: 1,
+      };
     };
 
     const sut = makeSUT({ runner: runnerStub });
-    await expect(sut.generateCode(anySpecs())).rejects.toEqual(anyError());
+    const expectedProcessOutput: ProcessOutput = {
+      stdout: "",
+      stderr: "",
+      exitCode: 1,
+    };
+    await expect(sut.generateCode(anySpecs())).resolves.toEqual(
+      expectedProcessOutput,
+    );
   });
 });
 
@@ -50,7 +67,7 @@ function makeSUT({
 }
 
 const clientDummy: Client = (_: string) => Promise.resolve(anyCode());
-const runnerDummy: Runner = (_: string) => anyCode();
+const runnerDummy: Runner = (_: string) => anyOutput();
 
 function anyClient(specs: string): Promise<string> {
   return Promise.reject(anyError());
@@ -66,6 +83,14 @@ function anyError(): Error {
 
 function anySpecs(): string {
   return "any specs";
+}
+
+function anyOutput(): ProcessOutput {
+  return {
+    stdout: "",
+    stderr: "",
+    exitCode: 0,
+  };
 }
 
 function anyCode(): string {
