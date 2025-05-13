@@ -74,6 +74,19 @@ describe("generateCode", () => {
 
     expect(capturedCode).toBe("concatenated");
   });
+
+  it("sends specs to client", async () => {
+    let capturedSpecs: string | undefined;
+    const clientSpy: Client = (specs: string) => {
+      capturedSpecs = specs;
+      return Promise.resolve(anyCode());
+    };
+
+    const sut = makeSUT({ client: clientSpy });
+    await sut.generateCode(anySpecs());
+
+    expect(capturedSpecs).toBe(anySpecs());
+  });
 });
 
 function makeSUT({
