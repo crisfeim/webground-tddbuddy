@@ -1,19 +1,5 @@
 import { describe, it, expect } from "vitest";
-
-class Iterator {
-  public count = 0;
-
-  async iterate(
-    nTimes: number,
-    until: () => boolean,
-    action: () => void | Promise<void>,
-  ): Promise<void> {
-    while (this.count < nTimes && !until()) {
-      await action();
-      this.count++;
-    }
-  }
-}
+import { Iterator } from "../lib/Iterator.js";
 
 describe("Iterator", () => {
   it("iterates N times", async () => {
