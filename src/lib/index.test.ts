@@ -8,16 +8,19 @@ type ProcessOutput = {
   exitCode: number;
 };
 type Runner = (code: string) => ProcessOutput;
+type Concatenator = (code: string, specs: string) => string;
 
 class Generator {
   constructor(
     private client: Client,
     private runner: Runner,
+    private concatenator: Concatenator = (code, specs) => code + " " + specs,
   ) {}
 
   async generateCode(specs: string): Promise<ProcessOutput> {
     const code = await this.client(specs);
-    const processOutput = this.runner(code);
+    const concatenatedCode = this.concatenator(code, specs);
+    const processOutput = this.runner(concatenatedCode);
     return processOutput;
   }
 }
@@ -54,16 +57,35 @@ describe("generateCode", () => {
       expectedProcessOutput,
     );
   });
+
+  it("uses concatenated code as runner input", async () => {
+    // spy
+    let capturedCode: string | undefined;
+
+    const runnerSpy: Runner = (code) => {
+      capturedCode = code;
+      return { stdout: "", stderr: "", exitCode: 0 };
+    };
+
+    const concatenator: Concatenator = (code, specs) => "concatenated";
+
+    const sut = makeSUT({ runner: runnerSpy, concatenator: concatenator });
+    await sut.generateCode(anySpecs());
+
+    expect(capturedCode).toBe("concatenated");
+  });
 });
 
 function makeSUT({
   client = clientDummy,
   runner = runnerDummy,
+  concatenator = (code, specs) => code + " " + specs,
 }: {
   client?: Client;
   runner?: Runner;
+  concatenator?: Concatenator;
 } = {}): Generator {
-  return new Generator(client, runner);
+  return new Generator(client, runner, concatenator);
 }
 
 const clientDummy: Client = (_: string) => Promise.resolve(anyCode());
