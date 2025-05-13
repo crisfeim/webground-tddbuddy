@@ -16,6 +16,12 @@ describe("generateCode", () => {
     const sut = new Generator(clientStub);
     await expect(sut.generateCode(anySpecs())).rejects.toEqual(anyError());
   });
+
+  it("delivers code on client success", async () => {
+    const clientStub: Client = (specs: string) => Promise.resolve(anyCode());
+    const sut = new Generator(clientStub);
+    await expect(sut.generateCode(anySpecs())).resolves.toEqual(anyCode());
+  });
 });
 
 function anyError(): Error {
@@ -24,4 +30,8 @@ function anyError(): Error {
 
 function anySpecs(): string {
   return "any specs";
+}
+
+function anyCode(): string {
+  return "any code";
 }
