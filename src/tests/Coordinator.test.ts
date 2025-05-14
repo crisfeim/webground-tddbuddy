@@ -2,36 +2,8 @@ import { describe, it, expect } from "vitest";
 import { Generator } from "../lib/Generator.js";
 import { Iterator } from "../lib/Iterator.js";
 import type { ProcessOutput } from "../lib/Generator.js";
-
-type Specs = string;
-
-interface CodeGenerator {
-  generateCode(specs: Specs): Promise<ProcessOutput>;
-}
-
-class Coordinator {
-  constructor(
-    private generator: CodeGenerator,
-    private iterator: Iterator,
-  ) {}
-
-  async generateCode(
-    specs: Specs,
-    maxIterationCount: number,
-  ): Promise<ProcessOutput> {
-    let output: ProcessOutput | undefined;
-
-    await this.iterator.iterate(
-      maxIterationCount,
-      () => output?.exitCode === 0,
-      async () => {
-        output = await this.generator.generateCode(specs);
-      },
-    );
-
-    return output!;
-  }
-}
+import { Coordinator } from "../lib/Coordinator.js";
+import type { CodeGenerator } from "../lib/Coordinator.js";
 
 describe("generateCode", () => {
   it("retries until max iteration when process fails", async () => {
@@ -59,7 +31,7 @@ describe("generateCode", () => {
 class GeneratorStub implements CodeGenerator {
   constructor(private output: ProcessOutput[]) {}
 
-  async generateCode(_: Specs): Promise<ProcessOutput> {
+  async generateCode(_: string): Promise<ProcessOutput> {
     return this.output.shift()!;
   }
 }
