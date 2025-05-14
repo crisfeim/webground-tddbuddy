@@ -33,6 +33,24 @@ describe("generateCode", () => {
     await sut.generateCode(anySpecs(), 5);
     expect(iterator.count).toBe(3);
   });
+
+  it("uses previous context on iterations", async () => {
+    // const { capturedMessages, generator } = GeneratorStubSpy([
+    //   anyFailingGeneratorOutput(),
+    //   anyFailingGeneratorOutput(),
+    //   anyFailingGeneratorOutput(),
+    // ]);
+    // const { sut, iterator } = makeSUT(generator);
+    // await sut.generateCode(anySpecs(), 3);
+    // const expectedMessage = {
+    //   text: `code:${anyFailingGeneratorOutput().code}\nerror:${anyFailingGeneratorOutput().processOutput.stderr}`,
+    // };
+    // expect(capturedMessages).toEqual([
+    //   { role: "assistant", parts: [expectedMessage] },
+    //   { role: "assistant", parts: [expectedMessage] },
+    //   { role: "assistant", parts: [expectedMessage] },
+    // ]);
+  });
 });
 
 // Helpers
