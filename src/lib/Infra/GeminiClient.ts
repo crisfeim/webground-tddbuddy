@@ -1,13 +1,10 @@
-import type { Client } from "$lib/Client.js";
+import type { Message } from "$lib/Message.js";
 
-type Message = {
-  role: string;
-};
 export function GeminiClient(
   systemPromt: string,
   apiKey: string,
-): (message: string) => Promise<string> {
-  return async function (message: string): Promise<string> {
+): (messages: Message[]) => Promise<string> {
+  return async function (messages: Message[]): Promise<string> {
     const endpoint =
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
       apiKey;
@@ -16,10 +13,7 @@ export function GeminiClient(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [
-          { role: "user", parts: [{ text: systemPromt }] },
-          { role: "user", parts: [{ text: message }] },
-        ],
+        contents: messages,
       }),
     });
 
