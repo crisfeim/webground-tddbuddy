@@ -1,5 +1,8 @@
 import type { Client } from "$lib/Client.js";
 
+type Message = {
+  role: string;
+};
 export function GeminiClient(
   systemPromt: string,
   apiKey: string,
