@@ -8,5 +8,7 @@ export const systemPrompt = `
   1. Provide ONLY runnable Swift code. No explanations, comments, or formatting (no code blocks, markdown, symbols, or text).
   2. DO NOT include unit tests or any test-related code.
 
+  Any output containing markdown, comments, or explanations will be considered a failure. Respond ONLY with raw Swift code. Do NOT format or explain.
+
   If your code fails to compile, the user will provide the error output for you to make adjustments.
   `;

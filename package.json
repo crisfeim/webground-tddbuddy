@@ -10,6 +10,7 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test:unit": "vitest",
+    "test:integration": "npm run check && vitest run ./src/tests/Integration.test.ts",
     "test": "npm run check && npm run test:unit -- --run"
   },
   "files": [

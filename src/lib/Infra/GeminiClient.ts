@@ -14,6 +14,9 @@ export function GeminiClient(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: messages,
+        generationConfig: {
+          stopSequences: ["```", "Here is", "Reasoning", "**", "Explanation"],
+        },
       }),
     });
 

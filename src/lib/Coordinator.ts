@@ -24,7 +24,7 @@ class ContextStore {
 
   add(item: GeneratorOutput) {
     this.#data.push({
-      role: "assistant",
+      role: "model",
       parts: [
         { text: `code:${item.code}\nerror:${item.processOutput.stderr}` },
       ],

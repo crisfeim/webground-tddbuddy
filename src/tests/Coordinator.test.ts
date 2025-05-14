@@ -128,7 +128,7 @@ function anyFailingGeneratorOutput(): {
   };
 
   const message: Message = {
-    role: "assistant",
+    role: "model",
     parts: [
       {
         text: `code:any code\nerror:${anyFailingRunningOutput().stderr}`,
