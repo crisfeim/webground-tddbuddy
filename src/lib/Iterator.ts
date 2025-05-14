@@ -1,14 +1,23 @@
 export class Iterator {
-  public count = 0;
-
-  async iterate(
+  async run<T>(
+    action: () => Promise<T>,
     nTimes: number,
-    until: () => boolean,
-    action: () => void | Promise<void>,
-  ): Promise<void> {
-    while (this.count < nTimes && !until()) {
-      await action();
-      this.count++;
+    until: (result: T | undefined) => boolean,
+    onNewIteration: (result: T) => void,
+  ): Promise<T> {
+    let result: T | undefined;
+    let currentIteration = 0;
+
+    while (currentIteration < nTimes && !until(result)) {
+      result = await action();
+      currentIteration += 1;
+      onNewIteration(result);
     }
+
+    if (result === undefined) {
+      throw new Error("Iterator did not run any iterations.");
+    }
+
+    return result;
   }
 }

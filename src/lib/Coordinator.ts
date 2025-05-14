@@ -44,22 +44,26 @@ export class Coordinator {
     maxIterationCount: number,
   ): Promise<GeneratorOutput> {
     let context = new ContextStore("system prompt to inject", specs);
-    let output: GeneratorOutput | undefined;
 
-    await this.iterator.iterate(
+    const action = async () => {
+      const messages: Message[] = [
+        {
+          role: "user",
+          parts: [{ text: `new attempt}` }],
+        },
+      ];
+      return await this.generator(specs, messages);
+    };
+
+    const runUntil = (result: GeneratorOutput | undefined) => {
+      return result?.processOutput?.exitCode === 0;
+    };
+
+    return await this.iterator.run(
+      action,
       maxIterationCount,
-      () => output?.processOutput?.exitCode === 0,
-      async () => {
-        const messages: Message[] = [
-          {
-            role: "user",
-            parts: [{ text: `attempt ${this.iterator.count}` }],
-          },
-        ];
-        output = await this.generator(specs, messages);
-      },
+      runUntil,
+      () => context.add,
     );
-
-    return output!;
   }
 }
