@@ -4,6 +4,7 @@ import type { Client } from "$lib/Client.js";
 import type { Runner } from "$lib/Runner.js";
 import type { ProcessOutput } from "$lib/ProcessOutput.js";
 import { Generator } from "$lib/Generator.js";
+import type { GeneratorOutput } from "$lib/Generator.js";
 
 describe("generateCode", () => {
   it("delivers error on client error", async () => {
@@ -15,7 +16,13 @@ describe("generateCode", () => {
   it("delivers output on client success", async () => {
     const clientStub: Client = (specs: string) => Promise.resolve(anyCode());
     const sut = makeSUT({ client: clientStub });
-    await expect(sut.generateCode(anySpecs())).resolves.toEqual(anyOutput());
+    const expectedResponse = {
+      code: anyCode(),
+      processOutput: anyOutput(),
+    };
+    await expect(sut.generateCode(anySpecs())).resolves.toEqual(
+      expectedResponse,
+    );
   });
 
   it("delivers output on code running", async () => {
@@ -33,8 +40,12 @@ describe("generateCode", () => {
       stderr: "",
       exitCode: 1,
     };
+    const expectedResponse: GeneratorOutput = {
+      code: anyCode(),
+      processOutput: expectedProcessOutput,
+    };
     await expect(sut.generateCode(anySpecs())).resolves.toEqual(
-      expectedProcessOutput,
+      expectedResponse,
     );
   });
 
