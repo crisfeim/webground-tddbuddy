@@ -9,14 +9,17 @@ import type { Message } from "$lib/Message.js";
 describe("generateCode", () => {
   it("retries until max iteration when process fails", async () => {
     const { capturedData, generator } = GeneratorMock([
-      anyFailingGeneratorOutput(),
-      anyFailingGeneratorOutput(),
-      anyFailingGeneratorOutput(),
-      anyFailingGeneratorOutput(),
-      anyFailingGeneratorOutput(),
-      anyFailingGeneratorOutput(),
-      anyFailingGeneratorOutput(),
-      anyFailingGeneratorOutput(),
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
     ]);
     const sut = makeSUT(generator);
     await sut.generateCode(anySpecs(), 5);
@@ -25,8 +28,8 @@ describe("generateCode", () => {
 
   it("retries until process succeeds", async () => {
     const { capturedData, generator } = GeneratorMock([
-      anyFailingGeneratorOutput(),
-      anyFailingGeneratorOutput(),
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
       anySuccessGeneratorOutput(),
     ]);
     const sut = makeSUT(generator);
@@ -36,18 +39,18 @@ describe("generateCode", () => {
 
   it("cumulates context on each retry", async () => {
     const { capturedData, generator } = GeneratorMock([
-      anyFailingGeneratorOutput(),
-      anyFailingGeneratorOutput(),
+      anyFailingGeneratorOutput().output,
+      anyFailingGeneratorOutput().output,
     ]);
     const sut = makeSUT(generator);
     await sut.generateCode(anySpecs(), 2);
-    const expectedCapturedMessages = [
-      { role: "assistant", parts: [{ text: "" }] },
-      { role: "assistant", parts: [{ text: "" }] },
-    ];
+
     console.log("capturedMessages:");
     console.log(capturedData.messages);
-    expect(capturedData.messages).toEqual(expectedCapturedMessages);
+    expect(capturedData.messages).toEqual([
+      anyFailingGeneratorOutput().message,
+      anyFailingGeneratorOutput().message,
+    ]);
   });
 });
 
@@ -115,11 +118,25 @@ function anySuccessGeneratorOutput(): GeneratorOutput {
   };
 }
 
-function anyFailingGeneratorOutput(): GeneratorOutput {
-  return {
+function anyFailingGeneratorOutput(): {
+  output: GeneratorOutput;
+  message: Message;
+} {
+  const output = {
     code: "any code",
     processOutput: anyFailingRunningOutput(),
   };
+
+  const message: Message = {
+    role: "assistant",
+    parts: [
+      {
+        text: `code:any code\nerror:${anyFailingRunningOutput().stderr}`,
+      },
+    ],
+  };
+
+  return { output, message };
 }
 
 function anySuccessRunningOutput(): ProcessOutput {
