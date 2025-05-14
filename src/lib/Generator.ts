@@ -1,7 +1,6 @@
 import type { ProcessOutput } from "./ProcessOutput.js";
 import type { Client } from "./Client.js";
-export type Runner = (code: string) => ProcessOutput;
-
+import type { Runner } from "./Runner.js";
 export type Concatenator = (code: string, specs: string) => string;
 
 export class Generator {

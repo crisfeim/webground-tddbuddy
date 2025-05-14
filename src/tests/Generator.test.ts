@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
-import type { Runner, Concatenator } from "$lib/Generator.js";
+import type { Concatenator } from "$lib/Generator.js";
 import type { Client } from "$lib/Client.js";
+import type { Runner } from "$lib/Runner.js";
 import type { ProcessOutput } from "$lib/ProcessOutput.js";
 import { Generator } from "$lib/Generator.js";
 
