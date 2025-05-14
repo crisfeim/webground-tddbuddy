@@ -1,7 +1,5 @@
 import type { ProcessOutput } from "./ProcessOutput.js";
-
-export type Client = (specs: string) => Promise<string>;
-
+import type { Client } from "./Client.js";
 export type Runner = (code: string) => ProcessOutput;
 
 export type Concatenator = (code: string, specs: string) => string;
