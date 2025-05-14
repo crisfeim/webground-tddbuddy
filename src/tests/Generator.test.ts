@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import type { Client, Runner, Concatenator } from "../lib/Generator.js";
-import type { ProcessOutput } from "../lib/ProcessOutput.js";
-import { Generator } from "../lib/Generator.js";
+import type { Client, Runner, Concatenator } from "$lib/Generator.js";
+import type { ProcessOutput } from "$lib/ProcessOutput.js";
+import { Generator } from "$lib/Generator.js";
 
 describe("generateCode", () => {
   it("delivers error on client error", async () => {

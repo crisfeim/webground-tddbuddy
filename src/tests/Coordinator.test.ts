@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { Generator } from "../lib/Generator.js";
-import { Iterator } from "../lib/Iterator.js";
-import type { ProcessOutput } from "../lib/ProcessOutput.js";
-import { Coordinator } from "../lib/Coordinator.js";
-import type { CodeGenerator } from "../lib/Coordinator.js";
+import { Generator } from "$lib/Generator.js";
+import { Iterator } from "$lib/Iterator.js";
+import type { ProcessOutput } from "$lib/ProcessOutput.js";
+import { Coordinator } from "$lib/Coordinator.js";
+import type { CodeGenerator } from "$lib/Coordinator.js";
 
 describe("generateCode", () => {
   it("retries until max iteration when process fails", async () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Iterator } from "../lib/Iterator.js";
+import { Iterator } from "$lib/Iterator.js";
 
 describe("Iterator", () => {
   it("iterates N times", async () => {
