@@ -8,7 +8,7 @@ import type { Message } from "$lib/Message.js";
 
 describe("generateCode", () => {
   it("retries until max iteration when process fails", async () => {
-    const { capturedMessages, generator } = GeneratorStubSpy([
+    const { capturedData, generator } = GeneratorMock([
       anyFailingGeneratorOutput(),
       anyFailingGeneratorOutput(),
       anyFailingGeneratorOutput(),
@@ -20,18 +20,34 @@ describe("generateCode", () => {
     ]);
     const sut = makeSUT(generator);
     await sut.generateCode(anySpecs(), 5);
-    expect(capturedMessages.length).toBe(5);
+    expect(capturedData.messages.length).toBe(5);
   });
 
   it("retries until process succeeds", async () => {
-    const { capturedMessages, generator } = GeneratorStubSpy([
+    const { capturedData, generator } = GeneratorMock([
       anyFailingGeneratorOutput(),
       anyFailingGeneratorOutput(),
       anySuccessGeneratorOutput(),
     ]);
     const sut = makeSUT(generator);
     await sut.generateCode(anySpecs(), 5);
-    expect(capturedMessages.length).toBe(3);
+    expect(capturedData.messages.length).toBe(3);
+  });
+
+  it("cumulates context on each retry", async () => {
+    const { capturedData, generator } = GeneratorMock([
+      anyFailingGeneratorOutput(),
+      anyFailingGeneratorOutput(),
+    ]);
+    const sut = makeSUT(generator);
+    await sut.generateCode(anySpecs(), 2);
+    const expectedCapturedMessages = [
+      { role: "assistant", parts: [{ text: "" }] },
+      { role: "assistant", parts: [{ text: "" }] },
+    ];
+    console.log("capturedMessages:");
+    console.log(capturedData.messages);
+    expect(capturedData.messages).toEqual(expectedCapturedMessages);
   });
 });
 
@@ -42,13 +58,31 @@ function makeSUT(generator: CodeGenerator): Coordinator {
   return sut;
 }
 
-const GeneratorStubSpy = (
+const GeneratorMock = (
   outputs: GeneratorOutput[],
-): { capturedMessages: Message[]; generator: CodeGenerator } => {
-  const capturedMessages: Message[] = [];
+): {
+  capturedData: { messages: Message[] };
+  generator: CodeGenerator;
+} => {
+  const capturedData: { messages: Message[] } = {
+    messages: [],
+  };
 
   const generator: CodeGenerator = async (_specs, messages) => {
-    capturedMessages.push(...messages);
+    capturedData.messages = messages;
+    return outputs.shift()!;
+  };
+
+  return { capturedData, generator };
+};
+
+const GeneratorStubSpyBis = (
+  outputs: GeneratorOutput[],
+): { capturedMessages: Message[]; generator: CodeGenerator } => {
+  var capturedMessages: Message[] = [];
+
+  const generator: CodeGenerator = async (_specs, messages) => {
+    capturedMessages = messages;
     return outputs.shift()!;
   };
 

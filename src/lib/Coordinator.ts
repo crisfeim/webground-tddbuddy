@@ -14,11 +14,8 @@ export type CodeGenerator = (
 class ContextStore {
   #data: Message[];
 
-  constructor(systemPrompt: string, specs: string) {
-    this.#data = [
-      { role: "system", parts: [{ text: systemPrompt }] },
-      { role: "user", parts: [{ text: specs }] },
-    ];
+  constructor() {
+    this.#data = [];
   }
 
   get data(): Message[] {
@@ -28,7 +25,7 @@ class ContextStore {
   add(item: GeneratorOutput) {
     this.#data.push({
       role: "assistant",
-      parts: [{ text: `${item.code}\nError:\n${item.processOutput.stderr}` }],
+      parts: [{ text: "" }],
     });
   }
 }
@@ -43,16 +40,10 @@ export class Coordinator {
     specs: Specs,
     maxIterationCount: number,
   ): Promise<GeneratorOutput> {
-    let context = new ContextStore("system prompt to inject", specs);
+    let context = new ContextStore();
 
     const action = async () => {
-      const messages: Message[] = [
-        {
-          role: "user",
-          parts: [{ text: `new attempt}` }],
-        },
-      ];
-      return await this.generator(specs, messages);
+      return await this.generator(specs, context.data);
     };
 
     const runUntil = (result: GeneratorOutput | undefined) => {
@@ -63,7 +54,7 @@ export class Coordinator {
       action,
       maxIterationCount,
       runUntil,
-      () => context.add,
+      (result) => context.add(result),
     );
   }
 }
