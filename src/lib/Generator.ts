@@ -1,10 +1,6 @@
-export type Client = (specs: string) => Promise<string>;
+import type { ProcessOutput } from "./ProcessOutput.js";
 
-export type ProcessOutput = {
-  stdout: string;
-  stderr: string;
-  exitCode: number;
-};
+export type Client = (specs: string) => Promise<string>;
 
 export type Runner = (code: string) => ProcessOutput;
 

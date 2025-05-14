@@ -1,6 +1,6 @@
 import { Generator } from "./Generator.js";
 import { Iterator } from "./Iterator.js";
-import type { ProcessOutput } from "./Generator.js";
+import type { ProcessOutput } from "./ProcessOutput.js";
 
 type Specs = string;
 
