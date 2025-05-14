@@ -4,17 +4,18 @@ import { Iterator } from "$lib/Iterator.js";
 import type { ProcessOutput } from "$lib/ProcessOutput.js";
 import { Coordinator } from "$lib/Coordinator.js";
 import type { CodeGenerator } from "$lib/Coordinator.js";
+import type { Message } from "$lib/Message.js";
 
 describe("generateCode", () => {
   it("retries until max iteration when process fails", async () => {
-    const generator = new GeneratorStub([anyFailingOutput()]);
+    const generator = GeneratorStub([anyFailingOutput()]);
     const { sut, iterator } = makeSUT(generator);
     await sut.generateCode(anySpecs(), 5);
     expect(iterator.count).toBe(5);
   });
 
   it("retries until process succeeds", async () => {
-    const generator = new GeneratorStub([
+    const generator = GeneratorStub([
       anyFailingOutput(),
       anyFailingOutput(),
       anySuccessfulOutput(),
@@ -36,16 +37,12 @@ function makeSUT(generator: CodeGenerator): {
   return { sut, iterator };
 }
 
-class GeneratorStub implements CodeGenerator {
-  constructor(private output: ProcessOutput[]) {}
-
-  async generateCode(_: string): Promise<GeneratorOutput> {
-    return {
-      code: "any code",
-      processOutput: this.output.shift()!,
-    };
-  }
-}
+const GeneratorStub = (outputs: ProcessOutput[]): CodeGenerator => {
+  return async (_specs, _messages) => ({
+    code: "any code",
+    processOutput: outputs.shift()!,
+  });
+};
 
 function anySpecs(): string {
   return "any specs";

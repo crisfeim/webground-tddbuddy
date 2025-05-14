@@ -6,9 +6,10 @@ import type { Message } from "./Message.js";
 
 type Specs = string;
 
-export interface CodeGenerator {
-  generateCode(specs: Specs, messages: Message[]): Promise<GeneratorOutput>;
-}
+export type CodeGenerator = (
+  specs: string,
+  messages: Message[],
+) => Promise<GeneratorOutput>;
 
 export class Coordinator {
   constructor(
@@ -26,7 +27,7 @@ export class Coordinator {
       maxIterationCount,
       () => output?.processOutput?.exitCode === 0,
       async () => {
-        output = await this.generator.generateCode(specs, []);
+        output = await this.generator(specs, []);
       },
     );
 
