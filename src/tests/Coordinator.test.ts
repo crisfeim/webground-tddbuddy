@@ -18,7 +18,7 @@ describe("generateCode", () => {
       anyFailingGeneratorOutput(),
       anyFailingGeneratorOutput(),
     ]);
-    const { sut, iterator } = makeSUT(generator);
+    const sut = makeSUT(generator);
     await sut.generateCode(anySpecs(), 5);
     expect(capturedMessages.length).toBe(5);
   });
@@ -29,7 +29,7 @@ describe("generateCode", () => {
       anyFailingGeneratorOutput(),
       anySuccessGeneratorOutput(),
     ]);
-    const { sut, iterator } = makeSUT(generator);
+    const sut = makeSUT(generator);
     await sut.generateCode(anySpecs(), 5);
     expect(capturedMessages.length).toBe(3);
   });
@@ -37,13 +37,9 @@ describe("generateCode", () => {
 
 // Helpers
 
-function makeSUT(generator: CodeGenerator): {
-  sut: Coordinator;
-  iterator: Iterator;
-} {
-  const iterator = new Iterator();
-  const sut = new Coordinator(generator, iterator);
-  return { sut, iterator };
+function makeSUT(generator: CodeGenerator): Coordinator {
+  const sut = new Coordinator(generator, new Iterator());
+  return sut;
 }
 
 const GeneratorStubSpy = (
