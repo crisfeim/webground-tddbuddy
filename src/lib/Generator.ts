@@ -9,7 +9,7 @@ export class Generator {
     private client: Client,
     private runner: Runner,
     private concatenator: Concatenator = (code: string, specs: string) =>
-      code + " " + specs,
+      code + "\n" + specs,
   ) {}
 
   async generateCode(specs: string): Promise<GeneratorOutput> {
