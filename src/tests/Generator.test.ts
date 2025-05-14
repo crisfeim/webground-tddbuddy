@@ -39,7 +39,6 @@ describe("generateCode", () => {
   });
 
   it("uses concatenated code as runner input", async () => {
-    // spy
     let capturedCode: string | undefined;
 
     const runnerSpy: Runner = (code: string) => {
@@ -82,6 +81,7 @@ function makeSUT({
   return new Generator(client, runner, concatenator);
 }
 
+// Helpers
 const clientDummy: Client = (_: string) => Promise.resolve(anyCode());
 const runnerDummy: Runner = (_: string) => anyOutput();
 
