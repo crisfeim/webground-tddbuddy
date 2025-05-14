@@ -33,26 +33,6 @@ class Coordinator {
   }
 }
 
-function anySpecs(): string {
-  return "any specs";
-}
-
-function anyFailingOutput(): ProcessOutput {
-  return {
-    stdout: "",
-    stderr: "💥",
-    exitCode: 1,
-  };
-}
-
-function anySuccessfulOutput(): ProcessOutput {
-  return {
-    stdout: "",
-    stderr: "",
-    exitCode: 0,
-  };
-}
-
 describe("generateCode", () => {
   it("retries until max iteration when process fails", async () => {
     const iterator = new Iterator();
@@ -75,10 +55,31 @@ describe("generateCode", () => {
   });
 });
 
+// Helpers
 class GeneratorStub implements CodeGenerator {
   constructor(private output: ProcessOutput[]) {}
 
   async generateCode(_: Specs): Promise<ProcessOutput> {
     return this.output.shift()!;
   }
+}
+
+function anySpecs(): string {
+  return "any specs";
+}
+
+function anyFailingOutput(): ProcessOutput {
+  return {
+    stdout: "",
+    stderr: "💥",
+    exitCode: 1,
+  };
+}
+
+function anySuccessfulOutput(): ProcessOutput {
+  return {
+    stdout: "",
+    stderr: "",
+    exitCode: 0,
+  };
 }
