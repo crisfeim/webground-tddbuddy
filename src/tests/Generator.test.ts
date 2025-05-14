@@ -5,22 +5,23 @@ import type { Runner } from "$lib/Runner.js";
 import type { ProcessOutput } from "$lib/ProcessOutput.js";
 import { Generator } from "$lib/Generator.js";
 import type { GeneratorOutput } from "$lib/Generator.js";
+import type { Message } from "$lib/Message.js";
 
 describe("generateCode", () => {
   it("delivers error on client error", async () => {
-    const clientStub: Client = (_: string) => Promise.reject(anyError());
+    const clientStub: Client = (_: Message[]) => Promise.reject(anyError());
     const sut = makeSUT({ client: clientStub });
-    await expect(sut.generateCode(anySpecs())).rejects.toEqual(anyError());
+    await expect(sut.generateCode(anySpecs(), [])).rejects.toEqual(anyError());
   });
 
   it("delivers output on client success", async () => {
-    const clientStub: Client = (specs: string) => Promise.resolve(anyCode());
+    const clientStub: Client = (_: Message[]) => Promise.resolve(anyCode());
     const sut = makeSUT({ client: clientStub });
     const expectedResponse = {
       code: anyCode(),
       processOutput: anyOutput(),
     };
-    await expect(sut.generateCode(anySpecs())).resolves.toEqual(
+    await expect(sut.generateCode(anySpecs(), [])).resolves.toEqual(
       expectedResponse,
     );
   });
@@ -44,7 +45,7 @@ describe("generateCode", () => {
       code: anyCode(),
       processOutput: expectedProcessOutput,
     };
-    await expect(sut.generateCode(anySpecs())).resolves.toEqual(
+    await expect(sut.generateCode(anySpecs(), [])).resolves.toEqual(
       expectedResponse,
     );
   });
@@ -61,22 +62,22 @@ describe("generateCode", () => {
       "concatenated";
 
     const sut = makeSUT({ runner: runnerSpy, concatenator: concatenator });
-    await sut.generateCode(anySpecs());
+    await sut.generateCode(anySpecs(), []);
 
     expect(capturedCode).toBe("concatenated");
   });
 
   it("sends specs to client", async () => {
-    let capturedSpecs: string | undefined;
-    const clientSpy: Client = (specs: string) => {
-      capturedSpecs = specs;
+    let capturedMessages: Message[] = [];
+    const clientSpy: Client = (messages: Message[]) => {
+      capturedMessages = messages;
       return Promise.resolve(anyCode());
     };
 
     const sut = makeSUT({ client: clientSpy });
-    await sut.generateCode(anySpecs());
+    await sut.generateCode(anySpecs(), []);
 
-    expect(capturedSpecs).toBe(anySpecs());
+    expect(capturedMessages).toStrictEqual([anyMessage()]);
   });
 });
 
@@ -93,7 +94,7 @@ function makeSUT({
 }
 
 // Helpers
-const clientDummy: Client = (_: string) => Promise.resolve(anyCode());
+const clientDummy: Client = (_: Message[]) => Promise.resolve(anyCode());
 const runnerDummy: Runner = (_: string) => anyOutput();
 
 function anyClient(specs: string): Promise<string> {
@@ -106,6 +107,10 @@ function anyRunner(code: string): string {
 
 function anyError(): Error {
   return new Error("any Error");
+}
+
+function anyMessage(): Message {
+  return { role: "user", parts: [{ text: "any specs" }] };
 }
 
 function anySpecs(): string {
