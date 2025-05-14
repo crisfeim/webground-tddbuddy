@@ -1,11 +1,12 @@
 import { Generator } from "./Generator.js";
 import { Iterator } from "./Iterator.js";
 import type { ProcessOutput } from "./ProcessOutput.js";
+import type { GeneratorOutput } from "./Generator.js";
 
 type Specs = string;
 
 export interface CodeGenerator {
-  generateCode(specs: Specs): Promise<ProcessOutput>;
+  generateCode(specs: Specs): Promise<GeneratorOutput>;
 }
 
 export class Coordinator {
@@ -17,12 +18,12 @@ export class Coordinator {
   async generateCode(
     specs: Specs,
     maxIterationCount: number,
-  ): Promise<ProcessOutput> {
-    let output: ProcessOutput | undefined;
+  ): Promise<GeneratorOutput> {
+    let output: GeneratorOutput | undefined;
 
     await this.iterator.iterate(
       maxIterationCount,
-      () => output?.exitCode === 0,
+      () => output?.processOutput?.exitCode === 0,
       async () => {
         output = await this.generator.generateCode(specs);
       },

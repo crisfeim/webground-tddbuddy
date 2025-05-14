@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Generator } from "$lib/Generator.js";
+import { Generator, type GeneratorOutput } from "$lib/Generator.js";
 import { Iterator } from "$lib/Iterator.js";
 import type { ProcessOutput } from "$lib/ProcessOutput.js";
 import { Coordinator } from "$lib/Coordinator.js";
@@ -39,8 +39,11 @@ function makeSUT(generator: CodeGenerator): {
 class GeneratorStub implements CodeGenerator {
   constructor(private output: ProcessOutput[]) {}
 
-  async generateCode(_: string): Promise<ProcessOutput> {
-    return this.output.shift()!;
+  async generateCode(_: string): Promise<GeneratorOutput> {
+    return {
+      code: "any code",
+      processOutput: this.output.shift()!,
+    };
   }
 }
 
