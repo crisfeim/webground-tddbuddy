@@ -9,28 +9,27 @@ interface CodeGenerator {
   generateCode(specs: Specs): Promise<ProcessOutput>;
 }
 
-class GeneratorStub implements CodeGenerator {
-  constructor(private output: ProcessOutput) {}
-
-  async generateCode(_: Specs): Promise<ProcessOutput> {
-    return this.output;
-  }
-}
-
 class Coordinator {
   constructor(
     private generator: CodeGenerator,
     private iterator: Iterator,
   ) {}
 
-  async generateCode(specs: Specs, maxIterationCount: number): Promise<void> {
+  async generateCode(
+    specs: Specs,
+    maxIterationCount: number,
+  ): Promise<ProcessOutput> {
+    let output: ProcessOutput | undefined;
+
     await this.iterator.iterate(
       maxIterationCount,
-      () => false,
+      () => output?.exitCode === 0,
       async () => {
-        await this.generator.generateCode(specs);
+        output = await this.generator.generateCode(specs);
       },
     );
+
+    return output!;
   }
 }
 
@@ -46,12 +45,40 @@ function anyFailingOutput(): ProcessOutput {
   };
 }
 
+function anySuccessfulOutput(): ProcessOutput {
+  return {
+    stdout: "",
+    stderr: "",
+    exitCode: 0,
+  };
+}
+
 describe("generateCode", () => {
   it("retries until max iteration when process fails", async () => {
     const iterator = new Iterator();
-    const generator = new GeneratorStub(anyFailingOutput());
+    const generator = new GeneratorStub([anyFailingOutput()]);
     const sut = new Coordinator(generator, iterator);
     await sut.generateCode(anySpecs(), 5);
     expect(iterator.count).toBe(5);
   });
+
+  it("retries until process succeeds", async () => {
+    const iterator = new Iterator();
+    const generator = new GeneratorStub([
+      anyFailingOutput(),
+      anyFailingOutput(),
+      anySuccessfulOutput(),
+    ]);
+    const sut = new Coordinator(generator, iterator);
+    await sut.generateCode(anySpecs(), 5);
+    expect(iterator.count).toBe(3);
+  });
 });
+
+class GeneratorStub implements CodeGenerator {
+  constructor(private output: ProcessOutput[]) {}
+
+  async generateCode(_: Specs): Promise<ProcessOutput> {
+    return this.output.shift()!;
+  }
+}
