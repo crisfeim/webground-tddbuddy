@@ -27,7 +27,13 @@ export class Coordinator {
       maxIterationCount,
       () => output?.processOutput?.exitCode === 0,
       async () => {
-        output = await this.generator(specs, []);
+        const messages: Message[] = [
+          {
+            role: "user",
+            parts: [{ text: `attempt ${this.iterator.count}` }],
+          },
+        ];
+        output = await this.generator(specs, messages);
       },
     );
 

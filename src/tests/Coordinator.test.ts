@@ -8,17 +8,26 @@ import type { Message } from "$lib/Message.js";
 
 describe("generateCode", () => {
   it("retries until max iteration when process fails", async () => {
-    const generator = GeneratorStub([anyFailingOutput()]);
+    const { capturedMessages, generator } = GeneratorStubSpy([
+      anyFailingGeneratorOutput(),
+      anyFailingGeneratorOutput(),
+      anyFailingGeneratorOutput(),
+      anyFailingGeneratorOutput(),
+      anyFailingGeneratorOutput(),
+      anyFailingGeneratorOutput(),
+      anyFailingGeneratorOutput(),
+      anyFailingGeneratorOutput(),
+    ]);
     const { sut, iterator } = makeSUT(generator);
     await sut.generateCode(anySpecs(), 5);
-    expect(iterator.count).toBe(5);
+    expect(capturedMessages.length).toBe(5);
   });
 
   it("retries until process succeeds", async () => {
     const generator = GeneratorStub([
-      anyFailingOutput(),
-      anyFailingOutput(),
-      anySuccessfulOutput(),
+      anyFailingRunningOutput(),
+      anyFailingRunningOutput(),
+      anySuccessRunningOutput(),
     ]);
     const { sut, iterator } = makeSUT(generator);
     await sut.generateCode(anySpecs(), 5);
@@ -37,6 +46,19 @@ function makeSUT(generator: CodeGenerator): {
   return { sut, iterator };
 }
 
+const GeneratorStubSpy = (
+  outputs: GeneratorOutput[],
+): { capturedMessages: Message[]; generator: CodeGenerator } => {
+  const capturedMessages: Message[] = [];
+
+  const generator: CodeGenerator = async (_specs, messages) => {
+    capturedMessages.push(...messages);
+    return outputs.shift()!;
+  };
+
+  return { capturedMessages, generator };
+};
+
 const GeneratorStub = (outputs: ProcessOutput[]): CodeGenerator => {
   return async (_specs, _messages) => ({
     code: "any code",
@@ -48,7 +70,7 @@ function anySpecs(): string {
   return "any specs";
 }
 
-function anyFailingOutput(): ProcessOutput {
+function anyFailingRunningOutput(): ProcessOutput {
   return {
     stdout: "",
     stderr: "💥",
@@ -56,7 +78,14 @@ function anyFailingOutput(): ProcessOutput {
   };
 }
 
-function anySuccessfulOutput(): ProcessOutput {
+function anyFailingGeneratorOutput(): GeneratorOutput {
+  return {
+    code: "any code",
+    processOutput: anyFailingRunningOutput(),
+  };
+}
+
+function anySuccessRunningOutput(): ProcessOutput {
   return {
     stdout: "",
     stderr: "",
