@@ -7,27 +7,35 @@ import type { CodeGenerator } from "../lib/Coordinator.js";
 
 describe("generateCode", () => {
   it("retries until max iteration when process fails", async () => {
-    const iterator = new Iterator();
     const generator = new GeneratorStub([anyFailingOutput()]);
-    const sut = new Coordinator(generator, iterator);
+    const { sut, iterator } = makeSUT(generator);
     await sut.generateCode(anySpecs(), 5);
     expect(iterator.count).toBe(5);
   });
 
   it("retries until process succeeds", async () => {
-    const iterator = new Iterator();
     const generator = new GeneratorStub([
       anyFailingOutput(),
       anyFailingOutput(),
       anySuccessfulOutput(),
     ]);
-    const sut = new Coordinator(generator, iterator);
+    const { sut, iterator } = makeSUT(generator);
     await sut.generateCode(anySpecs(), 5);
     expect(iterator.count).toBe(3);
   });
 });
 
 // Helpers
+
+function makeSUT(generator: CodeGenerator): {
+  sut: Coordinator;
+  iterator: Iterator;
+} {
+  const iterator = new Iterator();
+  const sut = new Coordinator(generator, iterator);
+  return { sut, iterator };
+}
+
 class GeneratorStub implements CodeGenerator {
   constructor(private output: ProcessOutput[]) {}
 
