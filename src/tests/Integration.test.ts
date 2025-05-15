@@ -10,6 +10,14 @@ import type { Message } from "$lib/Message.js";
 import { systemPrompt } from "$lib/system-prompt.js";
 
 describe("Integration", () => {
+  it("Gemini Client E2E", async () => {
+    const prompt = "my name is Cristian, say hi Cristian 👋";
+    const client = GeminiClient(gemini_key);
+    const message = makeUserMessage(prompt);
+    const response = await client([message]);
+    expect(response.toLowerCase()).toContain("cristian");
+  });
+
   it("", async () => {
     const adderSpecs = `
       function test_adder() {
