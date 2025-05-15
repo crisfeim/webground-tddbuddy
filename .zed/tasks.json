@@ -1,7 +1,7 @@
 [
   {
     "label": "Test",
-    "command": "npm run test:ci",
+    "command": "npm run test",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
     "reveal": "always",
