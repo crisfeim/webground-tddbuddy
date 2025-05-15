@@ -1,6 +1,6 @@
 [
   {
-    "label": "Run tests",
+    "label": "Test",
     "command": "npm run test:ci",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
@@ -12,7 +12,7 @@
     "tags": []
   },
   {
-    "label": "Run integration tests",
+    "label": "Test:Integration",
     "command": "npm run test:integration",
     "use_new_terminal": false,
     "allow_concurrent_runs": false,
