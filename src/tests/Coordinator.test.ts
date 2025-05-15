@@ -94,7 +94,7 @@ const GeneratorStubSpyBis = (
 
 const GeneratorStub = (outputs: ProcessOutput[]): CodeGenerator => {
   return async (_specs, _messages) => ({
-    code: "any code",
+    generatedCode: "any code",
     processOutput: outputs.shift()!,
   });
 };
@@ -113,7 +113,7 @@ function anyFailingRunningOutput(): ProcessOutput {
 
 function anySuccessGeneratorOutput(): GeneratorOutput {
   return {
-    code: "any code",
+    generatedCode: "any code",
     processOutput: anySuccessRunningOutput(),
   };
 }
@@ -123,7 +123,7 @@ function anyFailingGeneratorOutput(): {
   message: Message;
 } {
   const output = {
-    code: "any code",
+    generatedCode: "any code",
     processOutput: anyFailingRunningOutput(),
   };
 

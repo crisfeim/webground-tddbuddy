@@ -1,7 +1,6 @@
 import type { Message } from "$lib/Message.js";
 
 export function GeminiClient(
-  systemPromt: string,
   apiKey: string,
 ): (messages: Message[]) => Promise<string> {
   return async function (messages: Message[]): Promise<string> {
@@ -15,7 +14,7 @@ export function GeminiClient(
       body: JSON.stringify({
         contents: messages,
         generationConfig: {
-          stopSequences: ["```", "Here is", "Reasoning", "**", "Explanation"],
+          stopSequences: [],
         },
       }),
     });

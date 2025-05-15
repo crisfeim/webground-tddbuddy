@@ -42,7 +42,7 @@ describe("generateCode", () => {
       exitCode: 1,
     };
     const expectedResponse: GeneratorOutput = {
-      code: anyCode(),
+      generatedCode: anyCode(),
       processOutput: expectedProcessOutput,
     };
     await expect(sut.generateCode(anySpecs(), [])).resolves.toEqual(
